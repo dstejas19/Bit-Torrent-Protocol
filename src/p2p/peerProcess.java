@@ -3,40 +3,45 @@ package p2p;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.ListIterator;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class peerProcess {
-    commonProp commonProp;
-    peerProp peerProp;
+    public static commonProp commonProp;
+    public static peerProp peerProp;
     public static int peerId;
-    ArrayList<peerProp> neighbours;
+    public ArrayList<peerProp> allPeers;
+    public static ConcurrentHashMap<Integer, peerProp> peerMap = new ConcurrentHashMap<>();
+
 
     public static void main(String[] args) {
 
         peerProcess proc = new peerProcess();
-        proc.peerId = Integer.parseInt(args[0]);
-        System.out.println(proc.peerId);
+        peerId = Integer.parseInt(args[0]);
+        System.out.println(peerId);
 
-        proc.commonProp = new commonProp();
+        commonProp = new commonProp();
 
-        proc.commonProp.read();
+        commonProp.read();
 
-        proc.peerProp = new peerProp();
+        peerProp = new peerProp();
 
-        proc.neighbours = proc.peerProp.read(proc.peerId);
+        proc.allPeers = peerProp.read(peerId);
 
-        ListIterator<peerProp> itr = proc.neighbours.listIterator();
+        ListIterator<peerProp> itr = proc.allPeers.listIterator();
 
-        Server server = new Server(proc.peerProp.port);
+        Server server = new Server(peerProp.port);
         server.start();
 
         while(itr.hasNext()) {
             peerProp peer = itr.next();
             if(peer.hasFile) {
-                peer.getBitfield().set(0, (int)proc.commonProp.numPieces, true);
+                peer.getBitfield().set(0, (int)commonProp.numPieces, true);
             }
             else {
-                peer.setBitfield(new BitSet((int) proc.commonProp.numPieces));
+                peer.setBitfield(new BitSet((int) commonProp.numPieces));
             }
+
+            peerMap.put(peer.peerId, peer);
 
             Client client = new Client(peer);
             client.start();

@@ -12,7 +12,7 @@ public class peerProp {
     String host;
     int port;
     boolean hasFile;
-    BitSet bitfield;
+    static BitSet bitfield;
 
     public int getPeerId() {
         return peerId;

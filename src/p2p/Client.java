@@ -4,9 +4,11 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
+import messages.bitfieldMessage;
+import messages.handshakeMessage;
+
 public class Client extends Thread{
     public peerProp remotePeer;
-    messageManager msgH = null;
 
 
     public Client(peerProp peer) {
@@ -21,16 +23,24 @@ public class Client extends Thread{
             ObjectOutputStream output = new ObjectOutputStream(clientSocket.getOutputStream());
             output.flush();
 
-            String msg = "Hello From Peer" + peerProcess.peerId + "To peer " + remotePeer.peerId;
+            handshakeMessage hsm = new handshakeMessage();
 
-            output.writeObject(msg);
+            output.writeObject(hsm.message);
             output.flush();
 
-            ObjectInputStream input = new ObjectInputStream(clientSocket.getInputStream());;
-            String msgReceived = (String) input.readObject();
-            System.out.println(msgReceived);
+            ObjectInputStream input = new ObjectInputStream(clientSocket.getInputStream());
+            byte[] msg = (byte[]) input.readObject();
 
-            output.writeObject("Lets start - from client " + peerProcess.peerId);
+            int peerId = Common.verify(msg);
+
+            if(peerId == -1) {
+                return;
+            }
+
+            System.out.println("Peer " + peerProcess.peerId + " received message from " + peerId);
+
+            bitfieldMessage bm = new bitfieldMessage();
+            output.writeObject(bm.message);
             output.flush();
 
             new connectionManager(clientSocket, input, output, remotePeer.peerId, new messageManager(clientSocket, input, output, remotePeer.peerId)).start();//need to extract peer_id from the handshake object
@@ -38,5 +48,4 @@ public class Client extends Thread{
             System.out.println(e);
         }
     }
-
 }

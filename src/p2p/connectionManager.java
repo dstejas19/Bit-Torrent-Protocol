@@ -1,5 +1,7 @@
 package p2p;
 
+import messages.bitfieldMessage;
+
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
@@ -9,7 +11,7 @@ public class connectionManager extends Thread{
     Socket socket;
     ObjectInputStream input;
     ObjectOutputStream output;
-    public messageManager msgH = null;
+    private messageManager msgH = null;
 
     public connectionManager(Socket socket, ObjectInputStream in, ObjectOutputStream op, int id, messageManager mm) {
         this.socket = socket;
@@ -24,19 +26,28 @@ public class connectionManager extends Thread{
     public void run() {
         while(true) {
             try {
-                String msg = (String) input.readObject();
-                System.out.println("Yessssss");
+                Object msg = input.readObject();
 
-                if(msg == null) {
-                    continue;
-                }
+//                if(msg instanceof String) {
+//                    String msgString = (String) msg;
+//                    System.out.println("Yessssss");
+//
+//                    if(msgString == null) {
+//                        continue;
+//                    }
+//
+//                    msgH.msgQ.add(msgString);
+//                    if(msgH.getState().equals(State.WAITING)) {
+//                        synchronized (msgH) {
+//                            msgH.notify();
+//                        }
+//                    }
+//                }
+//
+//                byte[] bitfieldMsg = (byte[]) msg;
+//
+//                System.out.println((int)bitfieldMsg[4]);
 
-                msgH.msgQ.add(msg);
-                if(msgH.getState().equals(State.WAITING)) {
-                    synchronized (msgH) {
-                        msgH.notify();
-                    }
-                }
             } catch (Exception e) {
                 System.out.println(e);
             }
