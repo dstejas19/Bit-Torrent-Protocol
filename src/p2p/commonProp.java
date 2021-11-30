@@ -46,7 +46,7 @@ public class commonProp {
                 line = reader.readLine();
             }
         } catch (Exception e) {
-            System.out.println(e);
+            System.out.println("Common Prop Exception - " + e);
         }
 
         numPieces = fileSize/pieceSize;

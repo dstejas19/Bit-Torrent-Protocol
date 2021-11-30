@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.BitSet;
+import java.util.Objects;
 
 
 public class peerProp {
@@ -12,7 +13,7 @@ public class peerProp {
     String host;
     int port;
     boolean hasFile;
-    static BitSet bitfield;
+    public BitSet bitfield;
 
     public int getPeerId() {
         return peerId;
@@ -34,8 +35,8 @@ public class peerProp {
         return bitfield;
     }
 
-    public void setBitfield(BitSet bitfield) {
-        this.bitfield = bitfield;
+    public void setBitfield(BitSet bt) {
+        bitfield = bt;
     }
 
     public void setHasFile(boolean hasFile) {
@@ -54,10 +55,6 @@ public class peerProp {
         this.port = port;
     }
 
-    //    peerProp(int id) {
-//        peerId = id;
-//    }
-
     public ArrayList<peerProp> read(int id) {
         ArrayList<peerProp> peers = new ArrayList<>();
         File f = new File("PeerInfo.cfg");
@@ -72,7 +69,7 @@ public class peerProp {
                     peerId = Integer.parseInt(words[0]);
                     host = words[1];
                     port = Integer.parseInt(words[2]);
-                    hasFile = Boolean.parseBoolean(words[3]);
+                    hasFile = Objects.equals(words[3], "1");
                 }
                 else {
                     peerProp peer = new peerProp();
@@ -80,7 +77,8 @@ public class peerProp {
                     peer.peerId = Integer.parseInt(words[0]);
                     peer.host = words[1];
                     peer.port = Integer.parseInt(words[2]);
-                    peer.hasFile = Boolean.parseBoolean(words[3]);
+
+                    peer.hasFile = Objects.equals(words[3], "1");
 
                     peers.add(peer);
 
@@ -89,7 +87,7 @@ public class peerProp {
                 line = reader.readLine();
             }
         } catch (Exception e) {
-            System.out.println(e);
+            System.out.println("PeerProp Exception - " + e);
         }
 
         return peers;

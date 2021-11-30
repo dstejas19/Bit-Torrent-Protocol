@@ -3,6 +3,7 @@ package messages;
 import p2p.peerProcess;
 
 import java.nio.ByteBuffer;
+import java.util.BitSet;
 
 public class bitfieldMessage {
     byte[] messageLength;
@@ -11,7 +12,7 @@ public class bitfieldMessage {
 //    public byte[] message = new byte[32];
 
     public bitfieldMessage() {
-        byte[] payload = peerProcess.peerProp.getBitfield().toByteArray();
+        byte[] payload = peerProcess.peerProperty.getBitfield().toByteArray();
         messageLength = ByteBuffer.allocate(4).putInt(payload.length+1).array();
         message = ByteBuffer.allocate(4+1+payload.length).array();
 

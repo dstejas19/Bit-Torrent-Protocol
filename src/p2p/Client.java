@@ -2,6 +2,7 @@ package p2p;
 
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.ConnectException;
 import java.net.Socket;
 
 import messages.bitfieldMessage;
@@ -12,12 +13,13 @@ public class Client extends Thread{
 
 
     public Client(peerProp peer) {
-        remotePeer = peer;
+        this.remotePeer = peer;
     }
 
     public void run() {
         try {
 //            System.out.println("Sending message to " + remotePeer.peerId);
+//            System.out.println("Client " + remotePeer.peerId + " " + peerProcess.peerProperty.getBitfield());
             Socket clientSocket = new Socket(remotePeer.host, remotePeer.port);
 //            ObjectInputStream input = new ObjectInputStream(clientSocket.getInputStream());;
             ObjectOutputStream output = new ObjectOutputStream(clientSocket.getOutputStream());
@@ -44,8 +46,11 @@ public class Client extends Thread{
             output.flush();
 
             new connectionManager(clientSocket, input, output, remotePeer.peerId, new messageManager(clientSocket, input, output, remotePeer.peerId)).start();//need to extract peer_id from the handshake object
-        } catch (Exception e) {
-            System.out.println(e);
+        } catch (ConnectException e) {
+            System.out.println(remotePeer.peerId + " is not available");
+        }
+        catch (Exception e) {
+            System.out.println("Client exception - " + e);
         }
     }
 }

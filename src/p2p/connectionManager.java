@@ -2,6 +2,8 @@ package p2p;
 
 import messages.bitfieldMessage;
 
+import java.io.EOFException;
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
@@ -24,32 +26,25 @@ public class connectionManager extends Thread{
     }
 
     public void run() {
-        while(true) {
+        while(!socket.isClosed()) {
             try {
                 Object msg = input.readObject();
 
-//                if(msg instanceof String) {
-//                    String msgString = (String) msg;
-//                    System.out.println("Yessssss");
-//
-//                    if(msgString == null) {
-//                        continue;
-//                    }
-//
-//                    msgH.msgQ.add(msgString);
-//                    if(msgH.getState().equals(State.WAITING)) {
-//                        synchronized (msgH) {
-//                            msgH.notify();
-//                        }
-//                    }
-//                }
-//
-//                byte[] bitfieldMsg = (byte[]) msg;
-//
-//                System.out.println((int)bitfieldMsg[4]);
-
+                msgH.msgQ.add(msg);
+                if(msgH.getState().equals(State.WAITING)) {
+                    synchronized (msgH) {
+                        msgH.notify();
+                    }
+                }
+            } catch (EOFException ex) {
+                try {
+                    socket.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             } catch (Exception e) {
-                System.out.println(e);
+                System.out.println("Connection manager Exception - ");
+                e.printStackTrace();
             }
         }
     }
