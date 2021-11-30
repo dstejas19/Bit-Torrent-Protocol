@@ -6,39 +6,54 @@ import java.util.ListIterator;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class peerProcess {
-    public static commonProp commonProp;
-    public static peerProp peerProp;
+    public static commonProp commonProperty;
+    public static peerProp peerProperty;
     public static int peerId;
     public ArrayList<peerProp> allPeers;
     public static ConcurrentHashMap<Integer, peerProp> peerMap = new ConcurrentHashMap<>();
+    public static ConcurrentHashMap<Integer, peerProp> interestedPeers = new ConcurrentHashMap<>();
 
 
     public static void main(String[] args) {
-
         peerProcess proc = new peerProcess();
         peerId = Integer.parseInt(args[0]);
         System.out.println(peerId);
 
-        commonProp = new commonProp();
+        commonProperty = new commonProp();
 
-        commonProp.read();
+        commonProperty.read();
 
-        peerProp = new peerProp();
+        peerProperty = new peerProp();
 
-        proc.allPeers = peerProp.read(peerId);
+        proc.allPeers = peerProperty.read(peerId);
+
+        if(peerProcess.peerProperty.hasFile) {
+            peerProcess.peerProperty.setBitfield(new BitSet((int) commonProperty.numPieces));
+            peerProcess.peerProperty.getBitfield().set(0, (int) commonProperty.numPieces, true);
+        }
+        else {
+            peerProcess.peerProperty.setBitfield(new BitSet((int) commonProperty.numPieces));
+        }
+
+//        System.out.println(peerProcess.peerProperty.getBitfield());
+
+        Server server = new Server(peerProperty.port);
+        server.start();
+
+//        System.out.println(peerProcess.peerProperty.getBitfield());
 
         ListIterator<peerProp> itr = proc.allPeers.listIterator();
 
-        Server server = new Server(peerProp.port);
-        server.start();
-
         while(itr.hasNext()) {
             peerProp peer = itr.next();
+//            System.out.println(peer.peerId);
+//            System.out.println(peerProcess.peerProperty.getBitfield());
             if(peer.hasFile) {
-                peer.getBitfield().set(0, (int)commonProp.numPieces, true);
+                peer.setBitfield(new BitSet((int) commonProperty.numPieces));
+                peer.getBitfield().set(0, (int) commonProperty.numPieces, true);
             }
             else {
-                peer.setBitfield(new BitSet((int) commonProp.numPieces));
+                peer.setBitfield(new BitSet((int) commonProperty.numPieces));
             }
 
             peerMap.put(peer.peerId, peer);
@@ -48,10 +63,6 @@ public class peerProcess {
 
         }
 
-
-
-
-
-
+//        System.out.println(peerProcess.peerProperty.getBitfield());
     }
 }

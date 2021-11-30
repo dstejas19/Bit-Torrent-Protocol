@@ -7,9 +7,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.nio.ByteBuffer;
-import java.util.Arrays;
-import java.util.Objects;
 
 public class Server extends Thread {
     int port;
@@ -47,6 +44,7 @@ public class Server extends Thread {
 
                 //send bitfield
                 bitfieldMessage bm = new bitfieldMessage();
+                System.out.println("Server " + bm.message);
                 output.writeObject(bm.message);
                 output.flush();
 
@@ -54,7 +52,7 @@ public class Server extends Thread {
                 System.out.println("hereerer");
             }
         } catch (Exception e) {
-            System.out.println(e);
+            System.out.println("Server Exception - " + e);
         }
     }
 }
