@@ -16,10 +16,17 @@ public class peerProp {
     public BitSet bitfield;
     public double downloadRate;
     public double start;
-    public boolean choked = true;
+    public boolean sendFile = false;
+    public boolean optimisticallySendFile = false;
+    public boolean receiveFile = false;
+    public int piecesSent = 0;
 
     public int getPeerId() {
         return peerId;
+    }
+
+    public int getPiecesSent() {
+        return piecesSent;
     }
 
     public boolean isHasFile() {
