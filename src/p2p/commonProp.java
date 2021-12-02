@@ -9,10 +9,12 @@ public class commonProp {
     public int numNeighbours;
     public int unchokingInterval;
     public int optunchokingInterval;
+    public String fileDir;
     public String fileName;
     public long fileSize;
     public long pieceSize;
     public long numPieces;
+    public long remSize = 0;
 
     public void read() {
         System.out.println("Path is " + System.getProperty("user.dir"));
@@ -51,7 +53,8 @@ public class commonProp {
 
         numPieces = fileSize/pieceSize;
 
-        if(fileSize%pieceSize > 0) {
+        if(fileSize % pieceSize > 0) {
+            remSize = fileSize % pieceSize;
             numPieces = numPieces + 1;
         }
     }

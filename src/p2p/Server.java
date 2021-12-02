@@ -26,7 +26,7 @@ public class Server extends Thread {
                 ObjectInputStream input = new ObjectInputStream(socket.getInputStream());
                 byte[] msg = (byte[]) input.readObject();
 
-                int peerId = Common.verify(msg);
+                int peerId = Utility.verify(msg);
 
                 if(peerId == -1) {
                     break;
