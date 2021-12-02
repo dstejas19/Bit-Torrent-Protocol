@@ -32,24 +32,20 @@ public class messageManager extends Thread {
                     int messageType = msg[4];
 
                     if (messageType == 0) {
-
+                        manageChokeMessage(msg);
                     } else if (messageType == 1) {
-                        manageBitFieldMessage(msg);
+                        manageUnchokeMessage(msg);
                     } else if (messageType == 2) {
                         manageInterestedMessage(msg);
                     } else if (messageType == 3) {
                         manageNotInterestedMessage(msg);
-                    }
-                    else if(messageType == 4) {
+                    } else if (messageType == 4) {
                         manageHaveMessage(msg);
-                    }
-                    else if(messageType == 5) {
+                    } else if (messageType == 5) {
                         manageBitFieldMessage(msg);
-                    }
-                    else if(messageType == 6) {
+                    } else if (messageType == 6) {
                         manageRequestMessage(msg);
-                    }
-                    else if(messageType == 7) {
+                    } else if (messageType == 7) {
                         managePieceMessage(msg);
                     } else {
                         synchronized (this) {
@@ -184,13 +180,13 @@ public class messageManager extends Thread {
             }
         }
     }
+
     public void manageHaveMessage(byte[] msg) {
         System.out.println("Received have message");
         int pieceIndex = ByteBuffer.wrap(Arrays.copyOfRange(msg, 5, 9)).getInt();
-    
+
         peerProcess.peerMap.get(remotePeerId).bitfield.set(pieceIndex);
-        if (!peerProcess.peerProperty.getBitfield().get(pieceIndex))
-        {
+        if (!peerProcess.peerProperty.getBitfield().get(pieceIndex)) {
             interestedMessage im = new interestedMessage();
             try {
                 output.writeObject(im.message);
@@ -198,31 +194,37 @@ public class messageManager extends Thread {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            
+
         }
 
     }
-    public void manageRequestMessage (byte[] msg)
-    {
+
+    public void manageRequestMessage(byte[] msg) {
 
 
-        if(peerProcess.peerMap.get(remotePeerId).sendFile || peerProcess.peerMap.get(remotePeerId).optimisticallySendFile)
-        {
-        int pieceIndex = ByteBuffer.wrap(Arrays.copyOfRange(msg, 5, 9)).getInt();
+        if (peerProcess.peerMap.get(remotePeerId).sendFile || peerProcess.peerMap.get(remotePeerId).optimisticallySendFile) {
+            int pieceIndex = ByteBuffer.wrap(Arrays.copyOfRange(msg, 5, 9)).getInt();
 
 
-        try {
-        byte[] piecefile = Files.readAllBytes(new File(peerProcess.commonProperty.fileDir + File.separator + pieceIndex + ".part").toPath());
-        pieceMessage pm= new pieceMessage(piecefile);
-        output.writeObject(pm.message);
-        output.flush();
+            try {
+                byte[] piecefile = Files.readAllBytes(new File(peerProcess.commonProperty.fileDir + File.separator + pieceIndex + ".part").toPath());
+                pieceMessage pm = new pieceMessage(piecefile);
+                output.writeObject(pm.message);
+                output.flush();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
-        catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
-}
+    public void manageUnchokeMessage(byte[] msg) {
+        peerProcess.peerMap.get(remotePeerId).receiveFile = true;
+        sendRequestMessage();
+    }
+
+    public void manageChokeMessage(byte[] msg) {
+        peerProcess.peerMap.get(remotePeerId).receiveFile = false;
+    }
 }
 

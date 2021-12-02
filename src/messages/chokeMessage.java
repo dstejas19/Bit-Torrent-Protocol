@@ -7,7 +7,7 @@ public class chokeMessage {
     byte messageType = (byte) 0;
     public byte[] message;
 
-    public unchokeMessage() {
+    public chokeMessage() {
         messageLength = ByteBuffer.allocate(4).putInt(1).array();
         message = ByteBuffer.allocate(4+1).array();
 
