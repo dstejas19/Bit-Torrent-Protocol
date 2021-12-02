@@ -9,7 +9,7 @@ import java.nio.file.Files;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-public class messageManager extends Thread{
+public class messageManager extends Thread {
     Socket socket;
     ObjectInputStream input;
     ObjectOutputStream output;
@@ -25,22 +25,19 @@ public class messageManager extends Thread{
 
     public void run() {
         int count = 0;
-        while(count < 5) {
-            if(!msgQ.isEmpty()) {
+        while (count < 5) {
+            if (!msgQ.isEmpty()) {
                 try {
                     byte[] msg = (byte[]) msgQ.poll();
                     int messageType = msg[4];
 
-                    if(messageType == 0) {
+                    if (messageType == 0) {
 
-                    }
-                    else if(messageType == 1) {
+                    } else if (messageType == 1) {
                         manageBitFieldMessage(msg);
-                    }
-                    else if(messageType == 2) {
+                    } else if (messageType == 2) {
                         manageInterestedMessage(msg);
-                    }
-                    else if(messageType == 3) {
+                    } else if (messageType == 3) {
                         manageNotInterestedMessage(msg);
                     }
                     else if(messageType == 4) {
@@ -54,8 +51,7 @@ public class messageManager extends Thread{
                     }
                     else if(messageType == 7) {
                         managePieceMessage(msg);
-                    }
-                    else {
+                    } else {
                         synchronized (this) {
                             try {
                                 wait();
@@ -83,16 +79,15 @@ public class messageManager extends Thread{
         currentBitField.and(receivedBitField);
 
         try {
-            if(currentBitField.isEmpty()) {
+            if (currentBitField.isEmpty()) {
                 notinterestedMessage nim = new notinterestedMessage();
                 output.writeObject(nim.message);
-            }
-            else {
+            } else {
                 interestedMessage im = new interestedMessage();
                 output.writeObject(im.message);
             }
             output.flush();
-        } catch(Exception e) {
+        } catch (Exception e) {
             System.out.println("Bitfield manager Exception - " + e);
         }
     }
@@ -110,11 +105,11 @@ public class messageManager extends Thread{
         int msgLength = ByteBuffer.wrap(Arrays.copyOfRange(msg, 0, 4)).getInt();
         double start = peerProcess.peerMap.get(remotePeerId).start;
 
-        peerProcess.peerMap.get(remotePeerId).downloadRate = ((double) msgLength)/(System.nanoTime() - start);
+        peerProcess.peerMap.get(remotePeerId).downloadRate = ((double) msgLength) / (System.nanoTime() - start);
 
         int pieceIndex = ByteBuffer.wrap(Arrays.copyOfRange(msg, 5, 9)).getInt();
 
-        if(!peerProcess.peerProperty.bitfield.get(pieceIndex)) {
+        if (!peerProcess.peerProperty.bitfield.get(pieceIndex)) {
             byte[] filePieces = new byte[msgLength - 4];
 
             if (msg.length - 9 >= 0) System.arraycopy(msg, 9, filePieces, 0, msg.length - 9);
@@ -131,7 +126,7 @@ public class messageManager extends Thread{
 
             haveMessage hm = new haveMessage(Arrays.copyOfRange(msg, 5, 9));
             Collection<connectionManager> connections = peerProcess.connectionMap.values();
-            for(connectionManager connection : connections) {
+            for (connectionManager connection : connections) {
                 try {
                     connection.output.writeObject(hm.message);
                     connection.output.flush();
@@ -144,31 +139,30 @@ public class messageManager extends Thread{
         BitSet currentBitset = (BitSet) peerProcess.peerProperty.bitfield.clone();
         currentBitset.flip(0, (int) peerProcess.commonProperty.numPieces);
 
-        if(currentBitset.isEmpty() && currentBitset.cardinality() == peerProcess.commonProperty.numPieces) {
+        if (currentBitset.isEmpty() && currentBitset.cardinality() == peerProcess.commonProperty.numPieces) {
             List<byte[]> bytesList = new ArrayList<>();
 
             try {
-                for(long i=0;i<peerProcess.commonProperty.numPieces;i++) {
+                for (long i = 0; i < peerProcess.commonProperty.numPieces; i++) {
                     bytesList.add(Files.readAllBytes(new File(peerProcess.commonProperty.fileDir + File.separator + i + ".part").toPath()));
                 }
 
                 FileOutputStream fos = new FileOutputStream(peerProcess.commonProperty.fileDir + File.separator + peerProcess.commonProperty.fileName);
 
-                for (byte[] data: bytesList) {
+                for (byte[] data : bytesList) {
                     fos.write(data);
                 }
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }
-        else {
+        } else {
             sendRequestMessage();
         }
 
     }
 
-    public synchronized  void sendRequestMessage() {
-        if(!peerProcess.peerMap.get(remotePeerId).choked) {
+    public synchronized void sendRequestMessage() {
+        if (peerProcess.peerMap.get(remotePeerId).receiveFile) {
             peerProcess.peerMap.get(remotePeerId).start = System.nanoTime();
 
             BitSet currentBitField = (BitSet) peerProcess.peerProperty.getBitfield().clone();
@@ -177,8 +171,8 @@ public class messageManager extends Thread{
             currentBitField.flip(0, (int) peerProcess.commonProperty.numPieces);
             currentBitField.and(senderBitField);
 
-            if(!currentBitField.isEmpty()) {
-                for(int i=currentBitField.nextSetBit(0);i<peerProcess.commonProperty.numPieces;i=currentBitField.nextSetBit(i+1)) {
+            if (!currentBitField.isEmpty()) {
+                for (int i = currentBitField.nextSetBit(0); i < peerProcess.commonProperty.numPieces; i = currentBitField.nextSetBit(i + 1)) {
                     requestMessage rm = new requestMessage(i);
                     try {
                         output.writeObject(rm.message);
