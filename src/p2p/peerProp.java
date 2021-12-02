@@ -14,6 +14,9 @@ public class peerProp {
     int port;
     boolean hasFile;
     public BitSet bitfield;
+    public double downloadRate;
+    public double start;
+    public boolean choked = true;
 
     public int getPeerId() {
         return peerId;

@@ -4,7 +4,7 @@ import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Objects;
 
-public class Common {
+public class Utility {
     public static int verify(byte[] msg) {
         String header = new String(Arrays.copyOfRange(msg, 0, 18));
         int zeroBits = ByteBuffer.wrap(Arrays.copyOfRange(msg, 18, 28)).getInt();
@@ -15,5 +15,9 @@ public class Common {
         }
 
         return -1;
+    }
+
+    public static void combinePieces() {
+
     }
 }

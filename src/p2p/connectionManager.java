@@ -16,6 +16,8 @@ public class connectionManager extends Thread{
     private messageManager msgH = null;
 
     public connectionManager(Socket socket, ObjectInputStream in, ObjectOutputStream op, int id, messageManager mm) {
+        peerProcess.connectionMap.put(id, this);
+
         this.socket = socket;
         input = in;
         output = op;
