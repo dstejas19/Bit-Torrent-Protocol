@@ -63,6 +63,8 @@ public class peerProcess {
             client.start();
 
         }
+
+
     }
 
     public static void setupDirectory(boolean hasFile) {
