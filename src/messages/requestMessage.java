@@ -23,7 +23,7 @@ public class requestMessage {
         i++;
 
         for(int c=0;c<4;c++) {
-            message[i] = messageLength[c];
+            message[i] = payload[c];
             i++;
         }
     }

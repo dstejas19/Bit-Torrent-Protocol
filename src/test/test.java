@@ -1,5 +1,6 @@
 package test;
 
+import messages.pieceMessage;
 import p2p.peerProcess;
 import p2p.peerProp;
 
@@ -74,31 +75,39 @@ public class test {
 //        for(int i=0;i<1000;i++) {
 //            System.out.println(i);
 //            Thread.sleep(1000);
+////        }
+//        peerProp p1 = new peerProp();
+//        peerProp p2 = new peerProp();
+//        peerProp p3 = new peerProp();
+//        peerProp p4 = new peerProp();
+//        peerProp p5 = new peerProp();
+//
+//        p1.piecesSent = 10;
+//        p2.piecesSent = 20;
+//        p3.piecesSent = 30;
+//        p4.piecesSent = 40;
+//        p5.piecesSent = 50;
+//
+//        ArrayList<peerProp> interested = new ArrayList<>(peerProcess.interestedPeers.values());
+//        interested.add(p1);
+//        interested.add(p2);
+//        interested.add(p3);
+//        interested.add(p4);
+//        interested.add(p5);
+//
+//        Collections.sort(interested, Comparator.comparingInt(peerProp::getPiecesSent).reversed());
+//
+//        for(int i=0;i<5;i++) {
+//            System.out.println(interested.get(i).piecesSent);
 //        }
-        peerProp p1 = new peerProp();
-        peerProp p2 = new peerProp();
-        peerProp p3 = new peerProp();
-        peerProp p4 = new peerProp();
-        peerProp p5 = new peerProp();
-
-        p1.piecesSent = 10;
-        p2.piecesSent = 20;
-        p3.piecesSent = 30;
-        p4.piecesSent = 40;
-        p5.piecesSent = 50;
-
-        ArrayList<peerProp> interested = new ArrayList<>(peerProcess.interestedPeers.values());
-        interested.add(p1);
-        interested.add(p2);
-        interested.add(p3);
-        interested.add(p4);
-        interested.add(p5);
-
-        Collections.sort(interested, Comparator.comparingInt(peerProp::getPiecesSent).reversed());
-
-        for(int i=0;i<5;i++) {
-            System.out.println(interested.get(i).piecesSent);
-        }
+//
+//        byte[] piecefile = new byte[0];
+//        try {
+//            piecefile = Files.readAllBytes(new File(System.getProperty("user.dir") + File.separator + "peer_1001" + File.separator + 5 + ".part").toPath());
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//        pieceMessage pm = new pieceMessage(piecefile);
     }
 
 //    public static void createFile() throws IOException {

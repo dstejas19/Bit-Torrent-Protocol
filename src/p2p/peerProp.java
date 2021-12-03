@@ -14,8 +14,8 @@ public class peerProp {
     int port;
     boolean hasFile;
     public BitSet bitfield;
-    public double downloadRate;
-    public double start;
+//    public double downloadRate;
+//    public double start;
     public boolean sendFile = false;
     public boolean optimisticallySendFile = false;
     public boolean receiveFile = false;

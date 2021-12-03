@@ -7,48 +7,111 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Random;
 
 public class chokeUnchoke extends  Thread{
     public void run() {
-        ArrayList<peerProp> interested = new ArrayList<>();
-        for(peerProp peer:peerProcess.interestedPeers.values()) {
-            interested.add(peerProcess.peerMap.get(peer.peerId));
-        }
-        Collections.sort(interested, Comparator.comparingInt(peerProp::getPiecesSent).reversed());
+        while(true) {
+            try {
+                Thread.sleep(peerProcess.commonProperty.unchokingInterval * 1000L);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            ArrayList<peerProp> interested = new ArrayList<>();
+            for(peerProp peer:peerProcess.interestedPeers.values()) {
+                interested.add(peerProcess.peerMap.get(peer.peerId));
+            }
 
-        int count = 0;
+            if(interested.size() == 0) {
+                continue;
+            }
 
-        for(peerProp peer: interested) {
-            if(count < peerProcess.commonProperty.numNeighbours) {
-                if(!peer.sendFile) {
-                    //send unchoke message
-                    unchokeMessage um = new unchokeMessage();
+            int count = 0;
 
-                    try {
-                        peerProcess.connectionMap.get(peer.peerId).output.writeObject(um.message);
-                        peerProcess.connectionMap.get(peer.peerId).output.flush();
-                    } catch (IOException e) {
-                        e.printStackTrace();
+            if(peerProcess.peerProperty.hasFile) {
+                while (count < peerProcess.commonProperty.numNeighbours) {
+                    if(interested.size() == 0) {
+                        break;
                     }
+
+                    Random random = new Random();
+
+                    int index = random.nextInt(interested.size());
+
+                    if(interested.get(index).sendFile) {
+                        peerProcess.peerMap.get(interested.get(index).peerId).piecesSent = 0;
+                    }
+                    else {
+                        peerProcess.peerMap.get(interested.get(index).peerId).sendFile = true;
+                        unchokeMessage um = new unchokeMessage();
+
+                        try {
+                            peerProcess.connectionMap.get(interested.get(index).peerId).output.writeObject(um.message);
+                            peerProcess.connectionMap.get(interested.get(index).peerId).output.flush();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                    interested.remove(index);
+                    count++;
                 }
 
-                peerProcess.peerMap.get(peer.peerId).piecesSent = 0;
-                peerProcess.peerMap.get(peer.peerId).sendFile = true;
-                count++;
+                for(peerProp peer:interested) {
+                    if(!peerProcess.peerMap.get(peer.peerId).optimisticallySendFile) {
+                        chokeMessage cm = new chokeMessage();
+
+                        try {
+                            peerProcess.connectionMap.get(peer.peerId).output.writeObject(cm.message);
+                            peerProcess.connectionMap.get(peer.peerId).output.flush();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+                        peerProcess.peerMap.get(peer.peerId).sendFile = false;
+
+                        System.out.println("Sent choke message to " + peer.peerId);
+                    }
+                }
             }
             else {
-                if(!peerProcess.peerMap.get(peer.peerId).optimisticallySendFile) {
-                    // send choke message
-                    chokeMessage cm = new chokeMessage();
+                Collections.sort(interested, Comparator.comparingInt(peerProp::getPiecesSent).reversed());
 
-                    try {
-                        peerProcess.connectionMap.get(peer.peerId).output.writeObject(cm.message);
-                        peerProcess.connectionMap.get(peer.peerId).output.flush();
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                for(peerProp peer: interested) {
+                    if(count < peerProcess.commonProperty.numNeighbours) {
+                        if(!peer.sendFile) {
+                            unchokeMessage um = new unchokeMessage();
+
+                            try {
+                                peerProcess.connectionMap.get(peer.peerId).output.writeObject(um.message);
+                                peerProcess.connectionMap.get(peer.peerId).output.flush();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+
+                        peerProcess.peerMap.get(peer.peerId).piecesSent = 0;
+                        peerProcess.peerMap.get(peer.peerId).sendFile = true;
+                        count++;
+
+                        System.out.println("Sent unchoke message to " + peer.peerId);
                     }
+                    else {
+                        if(!peerProcess.peerMap.get(peer.peerId).optimisticallySendFile) {
+                            chokeMessage cm = new chokeMessage();
 
-                    peerProcess.peerMap.get(peer.peerId).sendFile = false;
+                            try {
+                                peerProcess.connectionMap.get(peer.peerId).output.writeObject(cm.message);
+                                peerProcess.connectionMap.get(peer.peerId).output.flush();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+
+                            peerProcess.peerMap.get(peer.peerId).sendFile = false;
+
+                            System.out.println("Sent choke message to " + peer.peerId);
+                        }
+                    }
                 }
             }
         }

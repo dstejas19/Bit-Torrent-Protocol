@@ -64,6 +64,10 @@ public class peerProcess {
 
         }
 
+        new chokeUnchoke().start();
+        new optimisticallyUnchoke().start();
+        new End().start();
+
 
     }
 
