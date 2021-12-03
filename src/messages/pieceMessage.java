@@ -1,5 +1,7 @@
 package messages;
 
+import p2p.peerProcess;
+
 import java.nio.ByteBuffer;
 
 public class pieceMessage {
@@ -7,9 +9,10 @@ public class pieceMessage {
     byte messageType = (byte) 7;
     public byte[] message;
 
-    public pieceMessage(byte[] pieceIndex) {
-        messageLength = ByteBuffer.allocate(4).putInt(pieceIndex.length+1).array();
-        message = ByteBuffer.allocate(messageLength.length + 4).array();
+    public pieceMessage(int pieceIndex, byte[] pieceFile) {
+        byte[] pieceIndexPayload = ByteBuffer.allocate(4).putInt(pieceIndex).array();
+        messageLength = ByteBuffer.allocate(4).putInt(pieceFile.length+1+4).array();
+        message = ByteBuffer.allocate(pieceFile.length + 1 + 4 + 4).array();
 
         int i = 0;
 
@@ -21,9 +24,16 @@ public class pieceMessage {
         message[i] = messageType;
         i++;
 
-        for(int c=0;c<pieceIndex.length;c++) {
-            message[i] = pieceIndex[c];
+        for(int c=0;c<4;c++) {
+            message[i] = pieceIndexPayload[c];
             i++;
         }
+
+        for (byte b : pieceFile) {
+            message[i] = b;
+            i++;
+        }
+
+
     }
 }
