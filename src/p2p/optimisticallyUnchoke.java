@@ -45,7 +45,7 @@ public class optimisticallyUnchoke extends Thread{
             peerProcess.peerMap.get(interested.get(index).peerId).piecesSent = 0;
 
             unchokeMessage um = new unchokeMessage();
-            peerProcess.log.info("Peer" + peerProcess.peerId + "has optimistically unchoked neighbor"+interested.get(index).peerId);
+            peerProcess.log.info("Peer " + peerProcess.peerId + "has optimistically unchoked neighbor "+interested.get(index).peerId);
             try {
                 peerProcess.connectionMap.get(interested.get(index).peerId).output.writeObject(um.message);
                 peerProcess.connectionMap.get(interested.get(index).peerId).output.flush();
