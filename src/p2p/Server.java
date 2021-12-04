@@ -31,8 +31,7 @@ public class Server extends Thread {
                 if(peerId == -1) {
                     break;
                 }
-
-                System.out.println("Peer " + peerProcess.peerId + " received message from " + peerId);
+                peerProcess.log.info("Peer "+ peerProcess.peerId +" made a connection with" + peerId);
 
                 ObjectOutputStream output = new ObjectOutputStream(socket.getOutputStream());
                 output.flush();

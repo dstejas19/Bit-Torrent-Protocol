@@ -29,6 +29,7 @@ public class Client extends Thread{
 
             output.writeObject(hsm.message);
             output.flush();
+            peerProcess.log.info(" Sent handshake message to " + remotePeer.peerId);
 
             ObjectInputStream input = new ObjectInputStream(clientSocket.getInputStream());
             byte[] msg = (byte[]) input.readObject();
@@ -39,7 +40,7 @@ public class Client extends Thread{
                 return;
             }
 
-            System.out.println("Peer " + peerProcess.peerId + " received message from " + peerId);
+            peerProcess.log.info("Peer " + peerProcess.peerId+ " received message from "+ peerId);
 
             bitfieldMessage bm = new bitfieldMessage();
             output.writeObject(bm.message);
@@ -47,7 +48,7 @@ public class Client extends Thread{
 
             new connectionManager(clientSocket, input, output, remotePeer.peerId, new messageManager(clientSocket, input, output, remotePeer.peerId)).start();//need to extract peer_id from the handshake object
         } catch (ConnectException e) {
-            System.out.println(remotePeer.peerId + " is not available");
+            peerProcess.log.info(remotePeer.peerId + " is not available");
         }
         catch (Exception e) {
             System.out.println("Client exception - " + e);

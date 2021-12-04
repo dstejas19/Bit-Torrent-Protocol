@@ -12,6 +12,7 @@ import java.util.Random;
 public class chokeUnchoke extends  Thread{
     public void run() {
         while(true) {
+            String strmsg="Peer " +peerProcess.peerId+"has the preferred neighbors ";
             try {
                 Thread.sleep(peerProcess.commonProperty.unchokingInterval * 1000L);
             } catch (InterruptedException e) {
@@ -45,6 +46,7 @@ public class chokeUnchoke extends  Thread{
                         peerProcess.peerMap.get(interested.get(index).peerId).sendFile = true;
                         unchokeMessage um = new unchokeMessage();
 
+
                         try {
                             peerProcess.connectionMap.get(interested.get(index).peerId).output.writeObject(um.message);
                             peerProcess.connectionMap.get(interested.get(index).peerId).output.flush();
@@ -52,6 +54,8 @@ public class chokeUnchoke extends  Thread{
                             e.printStackTrace();
                         }
                     }
+                    strmsg += interested.get(index).peerId + ", ";
+                    //peerProcess.log.info(strmsg+ interested.get(index).peerId + " ");
 
                     interested.remove(index);
                     count++;
@@ -70,7 +74,6 @@ public class chokeUnchoke extends  Thread{
 
                         peerProcess.peerMap.get(peer.peerId).sendFile = false;
 
-                        System.out.println("Sent choke message to " + peer.peerId);
                     }
                 }
             }
@@ -93,8 +96,8 @@ public class chokeUnchoke extends  Thread{
                         peerProcess.peerMap.get(peer.peerId).piecesSent = 0;
                         peerProcess.peerMap.get(peer.peerId).sendFile = true;
                         count++;
-
-                        System.out.println("Sent unchoke message to " + peer.peerId);
+                        strmsg += peer.peerId + ", ";
+                        //peerProcess.log.info(strmsg+ peer.peerId);
                     }
                     else {
                         if(!peerProcess.peerMap.get(peer.peerId).optimisticallySendFile) {
@@ -108,11 +111,11 @@ public class chokeUnchoke extends  Thread{
                             }
 
                             peerProcess.peerMap.get(peer.peerId).sendFile = false;
-
-                            System.out.println("Sent choke message to " + peer.peerId);
                         }
                     }
                 }
+                
+                peerProcess.log.info(strmsg);
             }
         }
     }

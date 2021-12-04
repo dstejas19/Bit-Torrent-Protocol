@@ -68,9 +68,6 @@ public class messageManager extends Thread {
     public void manageBitFieldMessage(byte[] msg) {
         BitSet receivedBitField = BitSet.valueOf(ByteBuffer.wrap(Arrays.copyOfRange(msg, 5, msg.length)));
         peerProcess.peerMap.get(remotePeerId).setBitfield(receivedBitField);
-
-        System.out.println("Received bitfield from " + remotePeerId + " " + receivedBitField);
-
         BitSet currentBitField = (BitSet) peerProcess.peerProperty.getBitfield().clone();
 
         currentBitField.flip(0, (int) peerProcess.commonProperty.numPieces);
@@ -92,12 +89,13 @@ public class messageManager extends Thread {
 
     public void manageInterestedMessage(byte[] msg) {
 //        System.out.println("Received interested message");
+        peerProcess.log.info("Peer "+ peerProcess.peerId +" received the 'interested' message from " + remotePeerId);
         peerProcess.interestedPeers.put(remotePeerId, peerProcess.peerMap.get(remotePeerId));
     }
 
     public void manageNotInterestedMessage(byte[] msg) {
         peerProcess.interestedPeers.remove(remotePeerId);
-        System.out.println("Received not interested message");
+        peerProcess.log.info("Peer "+ peerProcess.peerId +" received the 'uninterested' message from " + remotePeerId);
     }
 
     public void managePieceMessage(byte[] msg) throws FileNotFoundException {
@@ -124,12 +122,14 @@ public class messageManager extends Thread {
 
             peerProcess.peerProperty.bitfield.set(pieceIndex);
 
+            peerProcess.log.info("Peer"+peerProcess.peerId+ " downloaded a piece "+pieceIndex+"from "+remotePeerId);
             haveMessage hm = new haveMessage(Arrays.copyOfRange(msg, 5, 9));
             Collection<connectionManager> connections = peerProcess.connectionMap.values();
             for (connectionManager connection : connections) {
                 try {
                     connection.output.writeObject(hm.message);
                     connection.output.flush();
+
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -158,6 +158,7 @@ public class messageManager extends Thread {
             }
 
             peerProcess.peerProperty.hasFile = true;
+            peerProcess.log.info("Peer "+peerProcess.peerId+"has finished downloading.");
 
             notinterestedMessage nim = new notinterestedMessage();
             Collection<connectionManager> connections = peerProcess.connectionMap.values();
@@ -192,7 +193,6 @@ public class messageManager extends Thread {
                     try {
                         output.writeObject(rm.message);
                         output.flush();
-
                         break;
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -213,6 +213,7 @@ public class messageManager extends Thread {
             try {
                 output.writeObject(im.message);
                 output.flush();
+                peerProcess.log.info("Peer "+peerProcess.peerId+"received the 'have' message from "+remotePeerId+"for piece "+pieceIndex);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -242,12 +243,13 @@ public class messageManager extends Thread {
     }
 
     public void manageUnchokeMessage(byte[] msg) {
-        System.out.println("Received unchoke message");
+        peerProcess.log.info("Peer " +peerProcess.peerId + "is unchoked by " + remotePeerId);
         peerProcess.peerMap.get(remotePeerId).receiveFile = true;
         sendRequestMessage();
     }
 
     public void manageChokeMessage(byte[] msg) {
+        peerProcess.log.info("Peer " +peerProcess.peerId + "is choked by " + remotePeerId);
         peerProcess.peerMap.get(remotePeerId).receiveFile = false;
         System.out.println("Received choke message");
     }
