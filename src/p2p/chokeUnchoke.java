@@ -12,7 +12,7 @@ import java.util.Random;
 public class chokeUnchoke extends  Thread{
     public void run() {
         while(true) {
-            String strmsg="Peer" +peerProcess.peerId+"has the preferred neighbors";
+            String strmsg="Peer " +peerProcess.peerId+"has the preferred neighbors ";
             try {
                 Thread.sleep(peerProcess.commonProperty.unchokingInterval * 1000L);
             } catch (InterruptedException e) {
@@ -54,7 +54,8 @@ public class chokeUnchoke extends  Thread{
                             e.printStackTrace();
                         }
                     }
-                    peerProcess.log.info(strmsg+ interested.get(index).peerId + " ");
+                    strmsg += interested.get(index).peerId + ", ";
+                    //peerProcess.log.info(strmsg+ interested.get(index).peerId + " ");
 
                     interested.remove(index);
                     count++;
@@ -95,8 +96,8 @@ public class chokeUnchoke extends  Thread{
                         peerProcess.peerMap.get(peer.peerId).piecesSent = 0;
                         peerProcess.peerMap.get(peer.peerId).sendFile = true;
                         count++;
-
-                        peerProcess.log.info(strmsg+ peer.peerId);
+                        strmsg += peer.peerId + ", ";
+                        //peerProcess.log.info(strmsg+ peer.peerId);
                     }
                     else {
                         if(!peerProcess.peerMap.get(peer.peerId).optimisticallySendFile) {
@@ -113,6 +114,8 @@ public class chokeUnchoke extends  Thread{
                         }
                     }
                 }
+                
+                peerProcess.log.info(strmsg);
             }
         }
     }
