@@ -4,6 +4,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Logger;
 
 public class peerProcess {
     public static commonProp commonProperty;
@@ -13,7 +14,7 @@ public class peerProcess {
     public static ConcurrentHashMap<Integer, peerProp> peerMap = new ConcurrentHashMap<>();
     public static ConcurrentHashMap<Integer, peerProp> interestedPeers = new ConcurrentHashMap<>();
     public static ConcurrentHashMap<Integer, connectionManager> connectionMap = new ConcurrentHashMap<>();
-
+    public static Logger log;
 
     public static void main(String[] args) {
         peerProcess proc = new peerProcess();
@@ -27,6 +28,7 @@ public class peerProcess {
         peerProperty = new peerProp();
 
         proc.allPeers = peerProperty.read(peerId);
+        peerProcess.log=LogHandler.LogH(peerId);
 
         if(peerProcess.peerProperty.hasFile) {
             peerProcess.peerProperty.setBitfield(new BitSet((int) commonProperty.numPieces));
